@@ -18,6 +18,11 @@
 		<module>inote-manage-controller</module>
 	</modules>
 	<dependencies>
+		<dependency>
+			<groupId>com.inote.common</groupId>
+			<artifactId>inote-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<!-- 单元测试 -->
 		<dependency>
 			<groupId>junit</groupId>
