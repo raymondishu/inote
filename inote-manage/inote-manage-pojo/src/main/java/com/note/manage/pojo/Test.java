@@ -1,0 +1,14 @@
+package com.note.manage.pojo;
+
+public class Test {
+	private Long id;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+}

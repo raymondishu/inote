@@ -1,0 +1,9 @@
+package com.note.manage.service.impl;
+
+import com.note.manage.service.DemoService;
+
+public class DemoServiceImpl implements DemoService{
+	public String sayHello(String name) {     
+		return "Hello " + name;   
+		} 
+}
