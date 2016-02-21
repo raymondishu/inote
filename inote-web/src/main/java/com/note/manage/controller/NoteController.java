@@ -117,7 +117,7 @@ public class NoteController {
 	@RequestMapping("/addNoteBook")
 	@ResponseBody
 	public ModelAndView addNoteBook(HttpServletRequest request,
-			@RequestBody String noteBookName) {
+			String noteBookName) {
 		ModelAndView modelAndView = null;
 		// 从session中获取用户循序
 		request.getSession().setAttribute(Constants.USER_INFO, "huxurui");

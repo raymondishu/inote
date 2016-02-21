@@ -20,6 +20,7 @@ public class JsonView extends AbstractView{
 		response.setContentType("text/json; charset=UTF-8");  
         PrintWriter out = response.getWriter();  
         ObjectMapper mapper = new ObjectMapper(); 
+        if(model.containsKey("org.springframework.validation.BindingResult.string"))
         model.remove("org.springframework.validation.BindingResult.string");
         //System.out.println(mapper.writeValueAsString(model));
         out.print(mapper.writeValueAsString(model)); 

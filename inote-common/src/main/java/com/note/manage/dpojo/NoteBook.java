@@ -1,9 +1,15 @@
 package com.note.manage.dpojo;
 
+import java.io.Serializable;
+
 import com.note.manage.utils.constants.Constants;
 
 
-public class NoteBook {
+public class NoteBook implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2045578534804797170L;
 	private String rowKey;
 	private String name;
 	private String createTime;
