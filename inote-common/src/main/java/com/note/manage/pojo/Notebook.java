@@ -1,8 +1,13 @@
 package com.note.manage.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Notebook {
+public class Notebook implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8126702729233009130L;
 	private String id;
 	private String noteBookName;
 	private Integer status;

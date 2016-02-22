@@ -13,10 +13,14 @@
 	<dubbo:protocol name="dubbo" port="20880" />       <!-- 声明需要暴露的服务接口 -->
 	
 	<dubbo:service interface="com.note.manage.service.DemoService"
-		ref="demoService" />       <!-- 和本地bean一样实现服务 -->
+		ref="demoService" timeout="1200000"/>       <!-- 和本地bean一样实现服务 -->
 	<bean id="demoService" class="com.note.manage.service.impl.DemoServiceImpl" />
 	
 	<dubbo:service interface="com.note.manage.service.NoteService"
-		ref="noteService" />       <!-- 和本地bean一样实现服务 -->
+		ref="noteService" timeout="1200000"/>       <!-- 和本地bean一样实现服务 -->
 	<bean id="noteService" class="com.note.manage.service.impl.NoteServiceImpl" />
+	
+	<dubbo:service interface="com.note.manage.service.TokenService"
+		ref="tokenService" timeout="1200000"/>       <!-- 和本地bean一样实现服务 -->
+	<bean id="tokenService" class="com.note.manage.service.impl.TokenServiceImpl" />
 </beans>

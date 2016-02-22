@@ -17,4 +17,5 @@
 	<dubbo:protocol name="dubbo" port="20880" />
 	<dubbo:reference interface="com.note.manage.service.DemoService"  id="demoService" />
 	<dubbo:reference interface="com.note.manage.service.NoteService"  id="noteService" />
+	<dubbo:reference interface="com.note.manage.service.TokenService" id="tokenService" />
 </beans>

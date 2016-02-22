@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<!-- 日志输出路径 -->
+	<property name="CURRENT_HOME" value="../../noteweblog/current/log" />
+
+	<!-- 日志备份路径 -->
+	<property name="BACKUP_HOME" value="../../noteweblog/backup/log/%d{yyyy-MM-dd}/" />
+
+    <!-- 最大保存天数 -->
+	<property name="MAX_HISTORY" value="30" />
+
+	<!-- 日志文件大小 -->
+	<property name="MAX_FILE_SIZE" value="10MB" />
+
+	<!--格式化输出：%d表示日期，%t表示线程名，p：级别，%m：日志消息，%n是换行符  %F源文件名-->
+	<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} | %p | %m | %c.%M | %F:%L | %t%n" />
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" charset="UTF-8">
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="CUBP_PASSPORT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+		<file>${CURRENT_HOME}/note.log</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${BACKUP_HOME}/note.log.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+			<MaxHistory>${MAX_HISTORY}</MaxHistory>
+
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>${MAX_FILE_SIZE}</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" charset="UTF-8">
+			<pattern>${pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- additivity参数判断是否要叠加root -->
+	<logger name="org.springframework.web" level="DEBUG" additivity="false">
+		<appender-ref ref="CUBP_INTEGRAL" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.springframework" level="DEBUG" additivity="false">
+		<appender-ref ref="CUBP_PASSPORT" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.apache.ibatis" level="DEBUG" additivity="false">
+		<appender-ref ref="CUBP_PASSPORT" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.mybatis.spring" level="DEBUG" additivity="false">
+		<appender-ref ref="CUBP_PASSPORT" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="com.note" level="DEBUG" additivity="false">
+		<appender-ref ref="CUBP_PASSPORT" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="CUBP_PASSPORT" />
+	</root>
+
+
+</configuration>

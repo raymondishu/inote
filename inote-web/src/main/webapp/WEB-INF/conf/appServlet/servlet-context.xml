@@ -30,6 +30,12 @@
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="maxUploadSize" value="60000" />
 	</bean>
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/note/**"/>
+			<bean class="com.note.manage.interceptor.TokenInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
 	<!-- severlet初始化 -->
 	<!-- <bean id="InitStart" lazy-init="false" init-method="InitSystem" class="com.itcast.tsc.util.InitStart" /> -->
 	<mvc:annotation-driven />
