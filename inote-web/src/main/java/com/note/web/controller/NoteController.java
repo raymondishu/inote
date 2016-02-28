@@ -1,37 +1,30 @@
 /**
  * 
  */
-package com.note.manage.controller;
+package com.note.web.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sf.json.JSONArray;
 
 //import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.note.manage.controller.jsonview.JsonView;
 import com.note.manage.dpojo.Note;
 import com.note.manage.dpojo.NoteBook;
+import com.note.manage.pojo.User;
 import com.note.manage.service.NoteService;
+import com.note.manage.threadlocal.UserThreadLocal;
 import com.note.manage.utils.constants.Constants;
-
 
 @Controller
 @RequestMapping("/note")
@@ -40,9 +33,11 @@ public class NoteController {
 			.getLogger(NoteController.class);
 	@Resource
 	private NoteService noteService;
-	
+	@Value("#{ipConfig['userToken']}")
+	private String userTocken;
+
 	@RequestMapping("/loginnow")
-	public String loginin(HttpServletRequest request){
+	public String loginin(HttpServletRequest request) {
 		return "note/inotecenter";
 	}
 
@@ -58,9 +53,12 @@ public class NoteController {
 		String userName = null;
 		try {
 			// 从session中获取用户名
-			request.getSession().setAttribute(Constants.USER_INFO, "huxurui");
-			userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			// request.getSession().setAttribute(Constants.USER_INFO,
+			// "huxurui");
+			// userName = (String) request.getSession().getAttribute(
+			// Constants.USER_INFO);
+			User user = UserThreadLocal.get();
+			userName = user.getUserName();
 			// 查询用户笔记本
 			List<NoteBook> allNoteBook = noteService.getAllNoteBook(userName);// 查询所有笔记本
 			// 封装返回值
@@ -89,7 +87,7 @@ public class NoteController {
 			String userName) {
 		ModelAndView modelAndView = null;
 		try {
-			request.getSession().setAttribute(Constants.USER_INFO, userName);
+			userName = UserThreadLocal.get().getUserName();
 			List<NoteBook> allNoteBook = noteService.getAllNoteBook(userName);// 查询所有笔记本
 			ModelMap map = new ModelMap();
 			map.put("allNoteBook", allNoteBook);
@@ -120,9 +118,11 @@ public class NoteController {
 			String noteBookName) {
 		ModelAndView modelAndView = null;
 		// 从session中获取用户循序
-		request.getSession().setAttribute(Constants.USER_INFO, "huxurui");
-		String userName = (String) request.getSession().getAttribute(
-				Constants.USER_INFO);
+		//request.getSession().setAttribute(Constants.USER_INFO, "huxurui");
+		/*String userName = (String) request.getSession().getAttribute(
+				Constants.USER_INFO);*/
+		User user = UserThreadLocal.get();
+		String userName = user.getUserName();
 		try {
 			// 创建时间戳
 			Long createTime = System.currentTimeMillis();
@@ -134,13 +134,13 @@ public class NoteController {
 				// 封装rowkey信息返回前台
 				map.put("resource", userName + Constants.ROWKEY_SEPARATOR
 						+ createTime);
-				//map.put("success", true);
+				map.put("success", true);
 			} else {
-				//map.put("success", false);
+				map.put("success", false);
 			}
 			modelAndView = new ModelAndView(new JsonView(), map);
-			//logger.info("2312321");
-			//return userName + Constants.ROWKEY_SEPARATOR+ createTime;
+			// logger.info("2312321");
+			// return userName + Constants.ROWKEY_SEPARATOR+ createTime;
 		} catch (Exception e) {
 			logger.error("用户" + userName
 					+ "添加笔记本异常|方法：addNoteBook|  参数：noteBookName:"
@@ -149,7 +149,7 @@ public class NoteController {
 			return null;
 		}
 		return modelAndView;
-		
+
 	}
 
 	/**
@@ -170,8 +170,7 @@ public class NoteController {
 			map.put("noteList", noteList);
 			modelAndView = new ModelAndView(new JsonView(), map);
 		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			String userName = UserThreadLocal.get().getUserName();
 			logger.error("用户" + userName
 					+ "获取笔记本的笔记异常|方法getNoteListByNotebook|参数:rowkey:" + rowkey,
 					e);
@@ -208,8 +207,7 @@ public class NoteController {
 			}
 			modelAndView = new ModelAndView(new JsonView(), map);
 		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			String userName = UserThreadLocal.get().getUserName();
 			logger.error("用户" + userName
 					+ "删除笔记本异常|方法:deleteNoteBook|参数： noteBookName:"
 					+ noteBookName + ";rowKey:" + rowKey, e);
@@ -238,8 +236,7 @@ public class NoteController {
 			map.put("success", flag);
 			modelAndView = new ModelAndView(new JsonView(), map);
 		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			String userName = UserThreadLocal.get().getUserName();
 			logger.error("用户" + userName
 					+ "修改笔记本异常|方法:updateNoteBook|参数： oldNoteBookName:"
 					+ oldNoteBookName + ";newNoteBookName:" + newNoteBookName
@@ -262,8 +259,7 @@ public class NoteController {
 			String noteBookRowkey) {
 		ModelAndView modelAndView = null;
 		// 获取用户名
-		String userName = (String) request.getSession().getAttribute(
-				Constants.USER_INFO);
+		String userName = UserThreadLocal.get().getUserName();
 		try {
 			// 创建时间
 			Long createTimeLong = System.currentTimeMillis();
@@ -310,8 +306,7 @@ public class NoteController {
 			}
 			modelAndView = new ModelAndView(new JsonView(), map);
 		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			String userName = UserThreadLocal.get().getUserName();
 			logger.error("用户" + userName + "获取笔记内容异常|方法：getNote|参数:noteRowkey:"
 					+ noteRowkey, e);
 			e.printStackTrace();
@@ -333,16 +328,16 @@ public class NoteController {
 			String oldNoteName, String noteRowKey, String noteBookRowkey) {
 		ModelAndView modelAndView = null;
 		try {
-			//分割rowkey和createtime
-			String[] split = noteRowKey.split("\\" + Constants.ROWKEY_SEPARATOR);
+			// 分割rowkey和createtime
+			String[] split = noteRowKey
+					.split("\\" + Constants.ROWKEY_SEPARATOR);
 			boolean delNote = noteService.deleteNote(noteRowKey, split[1], "0",
 					oldNoteName, noteBookRowkey);
 			ModelMap map = new ModelMap();
 			map.put("success", delNote);
 			modelAndView = new ModelAndView(new JsonView(), map);
 		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			String userName = UserThreadLocal.get().getUserName();
 			logger.error("用户" + userName
 					+ "删除笔记异常|方法:deleteNote|参数：oldNoteName:" + oldNoteName
 					+ ";noteRowKey:" + noteRowKey + ";noteBookRowkey:"
@@ -368,15 +363,16 @@ public class NoteController {
 			String oldNoteName, String noteRowKey, String content,
 			String noteBookRowkey) {
 		ModelAndView modelAndView = null;
-		ModelMap map= new ModelMap();;
-		//字数限制
+		ModelMap map = new ModelMap();
+		;
+		// 字数限制
 		if (content.length() > 500000) {
 			map.put("success", false);
 			modelAndView = new ModelAndView(new JsonView(), map);
 			return modelAndView;
 		}
 		try {
-			//分割
+			// 分割
 			String[] split = noteRowKey
 					.split("\\" + Constants.ROWKEY_SEPARATOR);
 			boolean updateNote = noteService.updateNote(noteRowKey, noteName,
@@ -384,8 +380,7 @@ public class NoteController {
 			map.put("success", updateNote);
 			modelAndView = new ModelAndView(new JsonView(), map);
 		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			String userName = UserThreadLocal.get().getUserName();
 			logger.error("用户" + userName + "修改笔记异常|方法:updateNote|参数：noteName:"
 					+ noteName + ";oldNoteName:" + oldNoteName + ";noteRowKey:"
 					+ noteRowKey + ";content:" + content + ";noteBookRowkey:"
@@ -395,7 +390,7 @@ public class NoteController {
 		return modelAndView;
 	}
 
-/*	*//**
+	/*	*//**
 	 * 移动并删除笔记,适用于删除到垃圾箱、笔记迁移
 	 * 
 	 * @param request
@@ -405,57 +400,46 @@ public class NoteController {
 	 * @param content
 	 * @param noteBookRowkey
 	 * @return
-	 *//*
-	@RequestMapping(value = "/moveAndDeleteNote")
-	public ModelAndView moveAndDeleteNote(HttpServletRequest request,
-			String noteRowKey, String oldNoteBookRowkey,
-			String newNoteBookRowkey,String noteName) {
-		ModelAndView modelAndView = null;
-		try {
-			//移动笔记
-			boolean moveNote = noteService.moveAndDeleteNote(noteRowKey,
-					oldNoteBookRowkey, newNoteBookRowkey,noteName);
-			ModelMap map = new ModelMap();
-			map.put("success", moveNote);
-			modelAndView = new ModelAndView(new MappingJacksonJsonView(), map);
-		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
-			logger.error("用户" + userName
-					+ "移动并删除笔记异常|方法：moveAndDeleteNote|参数：noteRowKey:"
-					+ noteRowKey + ";oldNoteBookRowkey:" + oldNoteBookRowkey
-					+ ";newNoteBookRowkey:" + newNoteBookRowkey, e);
-			e.printStackTrace();
-		}
-		return modelAndView;
-	}
-	*//**
+	 */
+	/*
+	 * @RequestMapping(value = "/moveAndDeleteNote") public ModelAndView
+	 * moveAndDeleteNote(HttpServletRequest request, String noteRowKey, String
+	 * oldNoteBookRowkey, String newNoteBookRowkey,String noteName) {
+	 * ModelAndView modelAndView = null; try { //移动笔记 boolean moveNote =
+	 * noteService.moveAndDeleteNote(noteRowKey, oldNoteBookRowkey,
+	 * newNoteBookRowkey,noteName); ModelMap map = new ModelMap();
+	 * map.put("success", moveNote); modelAndView = new ModelAndView(new
+	 * MappingJacksonJsonView(), map); } catch (Exception e) { String userName =
+	 * (String) request.getSession().getAttribute( Constants.USER_INFO);
+	 * logger.error("用户" + userName +
+	 * "移动并删除笔记异常|方法：moveAndDeleteNote|参数：noteRowKey:" + noteRowKey +
+	 * ";oldNoteBookRowkey:" + oldNoteBookRowkey + ";newNoteBookRowkey:" +
+	 * newNoteBookRowkey, e); e.printStackTrace(); } return modelAndView; }
+	 *//**
 	 * 显示活动列表页面
 	 * 
 	 * @param request
 	 * @return
 	 * @throws Exception
-	 *//*
-	@RequestMapping("/showActivity")
-	public String showActivity(HttpServletRequest request) throws Exception {
-		return "active/activity";
-	}
-
-	*//**
+	 */
+	/*
+	 * @RequestMapping("/showActivity") public String
+	 * showActivity(HttpServletRequest request) throws Exception { return
+	 * "active/activity"; }
+	 *//**
 	 * 打开活动细节页面
 	 * 
 	 * @param request
 	 * @param rowKey
 	 * @return
 	 * @throws Exception
-	 *//*
-	@RequestMapping("/openDetail")
-	public String openDetail(HttpServletRequest request, String rowKey)
-			throws Exception {
-		request.setAttribute("rowKey", rowKey);
-		return "active/activity_detail";
-	}
-	*//**
+	 */
+	/*
+	 * @RequestMapping("/openDetail") public String
+	 * openDetail(HttpServletRequest request, String rowKey) throws Exception {
+	 * request.setAttribute("rowKey", rowKey); return "active/activity_detail";
+	 * }
+	 *//**
 	 * 活动笔记
 	 * 
 	 * @param request
@@ -465,35 +449,25 @@ public class NoteController {
 	 * @param content
 	 * @param noteBookRowkey
 	 * @return
-	 *//*
-	@RequestMapping(value = "/activeMyNote")
-	public ModelAndView activeMyNote(HttpServletRequest request,
-			String noteRowKey, String oldNoteBookRowkey,
-			String newNoteBookRowkey) {
-		ModelAndView modelAndView = null;
-		
-		try {
-			
-			// String activityBtRowKey = userName+Constants.ACTIVITY;
-			boolean moveNote = noteService.activeMyNote(noteRowKey,
-					newNoteBookRowkey);
-			ModelMap map = new ModelMap();
-			map.put("success", moveNote);
-			modelAndView = new ModelAndView(new MappingJacksonJsonView(), map);
-		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
-			logger.error("用户" + userName
-					+ "活动笔记异常|方法：activeMyNote|参数：noteRowKey:" + noteRowKey
-					+ ";oldNoteBookRowkey:" + oldNoteBookRowkey
-					+ ";newNoteBookRowkey:" + newNoteBookRowkey, e);
-			e.printStackTrace();
-		}
-		return modelAndView;
-	}
-
-	
-	*//**
+	 */
+	/*
+	 * @RequestMapping(value = "/activeMyNote") public ModelAndView
+	 * activeMyNote(HttpServletRequest request, String noteRowKey, String
+	 * oldNoteBookRowkey, String newNoteBookRowkey) { ModelAndView modelAndView
+	 * = null;
+	 * 
+	 * try {
+	 * 
+	 * // String activityBtRowKey = userName+Constants.ACTIVITY; boolean
+	 * moveNote = noteService.activeMyNote(noteRowKey, newNoteBookRowkey);
+	 * ModelMap map = new ModelMap(); map.put("success", moveNote); modelAndView
+	 * = new ModelAndView(new MappingJacksonJsonView(), map); } catch (Exception
+	 * e) { String userName = (String) request.getSession().getAttribute(
+	 * Constants.USER_INFO); logger.error("用户" + userName +
+	 * "活动笔记异常|方法：activeMyNote|参数：noteRowKey:" + noteRowKey +
+	 * ";oldNoteBookRowkey:" + oldNoteBookRowkey + ";newNoteBookRowkey:" +
+	 * newNoteBookRowkey, e); e.printStackTrace(); } return modelAndView; }
+	 *//**
 	 * 收藏笔记
 	 * 
 	 * @param request
@@ -503,32 +477,21 @@ public class NoteController {
 	 * @param content
 	 * @param noteBookRowkey
 	 * @return
-	 *//*
-	@RequestMapping(value = "/starOtherNote")
-	public ModelAndView starOtherNote(HttpServletRequest request,
-			String noteRowKey) {
-		String userName = (String) request.getSession().getAttribute(
-				Constants.USER_INFO);
-		ModelAndView modelAndView = null;
-		try {
-			
-			String starBtRowKey = userName + Constants.STAR;
-			boolean moveNote = noteService.starOtherNote(noteRowKey,
-					starBtRowKey);
-			ModelMap map = new ModelMap();
-			map.put("success", moveNote);
-			modelAndView = new ModelAndView(new MappingJacksonJsonView(), map);
-		} catch (Exception e) {
-			logger.error("用户" + userName
-					+ "收藏笔记异常|方法：starOtherNote|参数：noteRowKey:" + noteRowKey, e);
-			e.printStackTrace();
-		}
-		return modelAndView;
-	}
-
-	
-	
-	*//********************************************以下功能禁用***************************************************************//*
+	 */
+	/*
+	 * @RequestMapping(value = "/starOtherNote") public ModelAndView
+	 * starOtherNote(HttpServletRequest request, String noteRowKey) { String
+	 * userName = (String) request.getSession().getAttribute(
+	 * Constants.USER_INFO); ModelAndView modelAndView = null; try {
+	 * 
+	 * String starBtRowKey = userName + Constants.STAR; boolean moveNote =
+	 * noteService.starOtherNote(noteRowKey, starBtRowKey); ModelMap map = new
+	 * ModelMap(); map.put("success", moveNote); modelAndView = new
+	 * ModelAndView(new MappingJacksonJsonView(), map); } catch (Exception e) {
+	 * logger.error("用户" + userName + "收藏笔记异常|方法：starOtherNote|参数：noteRowKey:" +
+	 * noteRowKey, e); e.printStackTrace(); } return modelAndView; }
+	 *//******************************************** 以下功能禁用 ***************************************************************/
+	/*
 	
 	*//**
 	 * 分享笔记
@@ -537,53 +500,34 @@ public class NoteController {
 	 *            ：rowKey
 	 * @param page
 	 * @return
-	 *//*
-	@RequestMapping("/shareNote")
-	public ModelAndView shareNote(HttpServletRequest request,
-			HttpServletResponse response, String rowKey) {
-		ModelMap map = new ModelMap();
-		try {
-			boolean shareNote = noteService.shareNote(rowKey);// 将笔记名字和内容创建索引，不存储，其他信息存储不索引
-			if (shareNote) {
-				map.put("success", true);
-			} else {
-				map.put("success", false);
-			}
-		} catch (Exception e) {
-			logger.error("分享笔记异常:TechnologyController  &&  rowKey:" + rowKey, e);
-			e.printStackTrace();
-		}
-		return new ModelAndView(new MappingJacksonJsonView(), map);
-	}
-
-	@RequestMapping("/search")
-	public ModelAndView search(HttpServletRequest request,
-			HttpServletResponse response, String key, Integer page) {
-		ModelMap map = new ModelMap();
-		List<Article> articles = new ArrayList<Article>();
-		if (page == null || page.equals("")) {
-			page = 1;
-		}
-		try {
-			boolean tecFlag = false;
-			articles = noteService.search(key, page);
-			JSONArray wes = JSONArray.fromObject(articles);
-			request.getSession().setAttribute("technologys", articles);
-			request.getSession().setAttribute("tecFlag", tecFlag);
-			map.put("wes", wes.toString());
-			map.put("page", page);
-			map.put("key", key);
-
-		} catch (Exception e) {
-			logger.error("从lucene中查询笔记异常:TechnologyController  &&  key:" + key,
-					e);
-			e.printStackTrace();
-
-		}
-		return new ModelAndView("question/questions_result", map);
-	}
-
-	*//**
+	 */
+	/*
+	 * @RequestMapping("/shareNote") public ModelAndView
+	 * shareNote(HttpServletRequest request, HttpServletResponse response,
+	 * String rowKey) { ModelMap map = new ModelMap(); try { boolean shareNote =
+	 * noteService.shareNote(rowKey);// 将笔记名字和内容创建索引，不存储，其他信息存储不索引 if
+	 * (shareNote) { map.put("success", true); } else { map.put("success",
+	 * false); } } catch (Exception e) {
+	 * logger.error("分享笔记异常:TechnologyController  &&  rowKey:" + rowKey, e);
+	 * e.printStackTrace(); } return new ModelAndView(new
+	 * MappingJacksonJsonView(), map); }
+	 * 
+	 * @RequestMapping("/search") public ModelAndView search(HttpServletRequest
+	 * request, HttpServletResponse response, String key, Integer page) {
+	 * ModelMap map = new ModelMap(); List<Article> articles = new
+	 * ArrayList<Article>(); if (page == null || page.equals("")) { page = 1; }
+	 * try { boolean tecFlag = false; articles = noteService.search(key, page);
+	 * JSONArray wes = JSONArray.fromObject(articles);
+	 * request.getSession().setAttribute("technologys", articles);
+	 * request.getSession().setAttribute("tecFlag", tecFlag); map.put("wes",
+	 * wes.toString()); map.put("page", page); map.put("key", key);
+	 * 
+	 * } catch (Exception e) {
+	 * logger.error("从lucene中查询笔记异常:TechnologyController  &&  key:" + key, e);
+	 * e.printStackTrace();
+	 * 
+	 * } return new ModelAndView("question/questions_result", map); }
+	 *//**
 	 * 从lucene中分页查询更多笔记
 	 * 
 	 * @param key
@@ -591,23 +535,18 @@ public class NoteController {
 	 * @param page
 	 *            :页码
 	 * @return
-	 *//*
-	@RequestMapping("/searchMore")
-	public ModelAndView searchMore(HttpServletRequest request,
-			HttpServletResponse response, String key, Integer page) {
-		ModelMap map = new ModelMap();
-		List<Article> articles = new ArrayList<Article>();// 封装笔记信息
-		try {
-			articles = noteService.search(key, page);// 从lucene中查询笔记信息
-			JSONArray wes = JSONArray.fromObject(articles);// 将笔记信息list转为json
-			map.put("urls", wes.toString());
-			map.put("page", page + 1);
-			map.put("key", key);
-		} catch (Exception e) {
-			logger.error("从lucene中查询更多笔记异常:TechnologyController  &&  key:"
-					+ key + "；page" + page, e);
-			e.printStackTrace();
-		}
-		return new ModelAndView(new MappingJacksonJsonView(), map);
-	}*/
+	 */
+	/*
+	 * @RequestMapping("/searchMore") public ModelAndView
+	 * searchMore(HttpServletRequest request, HttpServletResponse response,
+	 * String key, Integer page) { ModelMap map = new ModelMap(); List<Article>
+	 * articles = new ArrayList<Article>();// 封装笔记信息 try { articles =
+	 * noteService.search(key, page);// 从lucene中查询笔记信息 JSONArray wes =
+	 * JSONArray.fromObject(articles);// 将笔记信息list转为json map.put("urls",
+	 * wes.toString()); map.put("page", page + 1); map.put("key", key); } catch
+	 * (Exception e) {
+	 * logger.error("从lucene中查询更多笔记异常:TechnologyController  &&  key:" + key +
+	 * "；page" + page, e); e.printStackTrace(); } return new ModelAndView(new
+	 * MappingJacksonJsonView(), map); }
+	 */
 }

@@ -84,6 +84,13 @@ public class RedisTools {
 		jedis.expire(key, exp);
 		RedisTools.closeJedis(jedis);
 	}
+	
+	public static void expire(String key,int exp){
+		Jedis jedis = RedisTools.getJedis();
+		jedis.expire(key, exp);
+		RedisTools.closeJedis(jedis);
+	}
+	
 	public static void set(Jedis jedis,String key, String value,int exp){
 		if(jedis.exists(key)){
 			jedis.del(key);

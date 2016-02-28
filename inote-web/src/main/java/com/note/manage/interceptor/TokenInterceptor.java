@@ -4,27 +4,47 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.note.manage.pojo.User;
 import com.note.manage.service.TokenService;
+import com.note.manage.threadlocal.UserThreadLocal;
 import com.note.manage.utils.CookieUtils;
 
 public class TokenInterceptor implements HandlerInterceptor{
 
+	private static Logger logger=LoggerFactory.getLogger(TokenInterceptor.class);
+	@Value("#{ipConfig['userToken']}")
+	private String userTocken;
+	
 	@Autowired
 	private TokenService tokenService;
 	
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
-		String cookieValue = CookieUtils.getCookieValue(request, "notetoken");
-		if(StringUtils.isBlank(cookieValue)){
-			response.sendRedirect("/index.jsp");
-		}
+		String cookieValue = CookieUtils.getCookieValue(request, userTocken);
 		User checkUser = tokenService.checkUser(cookieValue);
-		System.out.println(checkUser);
+		if(StringUtils.isBlank(cookieValue)){
+			UserThreadLocal.clear();
+			response.sendRedirect("/index.jsp");
+			logger.info("未登录跳转首页");
+			return true;
+		}
+		
+		if(null==checkUser){
+			UserThreadLocal.clear();
+			response.sendRedirect("/index.jsp");
+			CookieUtils.deleteCookie(request, response, userTocken);
+			logger.info("登录过期跳转首页");
+			return true;
+		}
+		UserThreadLocal.set(checkUser);
+		logger.info(checkUser.getUserName()+" use "+request.getServletPath());		
 		return true;
 	}
 

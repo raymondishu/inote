@@ -6,5 +6,7 @@ public interface TokenService {
 	User checkUser(String token);
 
 	boolean saveUser(User user);
+	
+	User LoginUser(String userName,String password);
 
 }

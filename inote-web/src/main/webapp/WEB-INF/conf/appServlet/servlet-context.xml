@@ -18,7 +18,7 @@
 	<mvc:resources mapping="/fonts/**" location="/fonts/" />
 	<mvc:resources mapping="/selfcheck/**" location="/selfcheck/" />
 	<!-- 扫描 -->
-	<context:component-scan base-package="com.note.manage.controller" />
+	<context:component-scan base-package="com.note.web.controller" />
 	<!-- 匹配页面 -->
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -30,6 +30,7 @@
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="maxUploadSize" value="60000" />
 	</bean>
+	
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/note/**"/>
@@ -39,4 +40,5 @@
 	<!-- severlet初始化 -->
 	<!-- <bean id="InitStart" lazy-init="false" init-method="InitSystem" class="com.itcast.tsc.util.InitStart" /> -->
 	<mvc:annotation-driven />
+	
 </beans>

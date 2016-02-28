@@ -45,6 +45,23 @@
 		where (`id` = #{id});
 	</select>
 
+	<select id="loginUser" resultType="User">
+		select
+		`id`,
+		`username`,
+		`password`,
+		`phone`,
+		`eml`,
+		`isVIP`,
+		`createtime`,
+		`updatetime`
+		from
+		`test`.`tb_user`
+		where (`username` = #{userName} and
+		`password`=#{password});
+	</select>
+
+
 	<update id="updateUser" parameterType="User">
 		UPDATE `test`.`tb_user`
 		<set>
