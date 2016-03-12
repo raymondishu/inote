@@ -34,7 +34,7 @@
 							<input type="button" value="确 定" class="sure"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							<input type="button" value="取 消" class="cancle"/>
 						</div>
-					</div-->
+					</div -->
 				</div>
 			</div>
 		</div>

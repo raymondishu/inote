@@ -118,9 +118,11 @@ public class NoteController {
 			String noteBookName) {
 		ModelAndView modelAndView = null;
 		// 从session中获取用户循序
-		//request.getSession().setAttribute(Constants.USER_INFO, "huxurui");
-		/*String userName = (String) request.getSession().getAttribute(
-				Constants.USER_INFO);*/
+		// request.getSession().setAttribute(Constants.USER_INFO, "huxurui");
+		/*
+		 * String userName = (String) request.getSession().getAttribute(
+		 * Constants.USER_INFO);
+		 */
 		User user = UserThreadLocal.get();
 		String userName = user.getUserName();
 		try {
@@ -401,32 +403,44 @@ public class NoteController {
 	 * @param noteBookRowkey
 	 * @return
 	 */
-	/*
-	 * @RequestMapping(value = "/moveAndDeleteNote") public ModelAndView
-	 * moveAndDeleteNote(HttpServletRequest request, String noteRowKey, String
-	 * oldNoteBookRowkey, String newNoteBookRowkey,String noteName) {
-	 * ModelAndView modelAndView = null; try { //移动笔记 boolean moveNote =
-	 * noteService.moveAndDeleteNote(noteRowKey, oldNoteBookRowkey,
-	 * newNoteBookRowkey,noteName); ModelMap map = new ModelMap();
-	 * map.put("success", moveNote); modelAndView = new ModelAndView(new
-	 * MappingJacksonJsonView(), map); } catch (Exception e) { String userName =
-	 * (String) request.getSession().getAttribute( Constants.USER_INFO);
-	 * logger.error("用户" + userName +
-	 * "移动并删除笔记异常|方法：moveAndDeleteNote|参数：noteRowKey:" + noteRowKey +
-	 * ";oldNoteBookRowkey:" + oldNoteBookRowkey + ";newNoteBookRowkey:" +
-	 * newNoteBookRowkey, e); e.printStackTrace(); } return modelAndView; }
-	 *//**
+
+	@RequestMapping(value = "/moveAndDeleteNote")
+	public ModelAndView moveAndDeleteNote(HttpServletRequest request,
+			String noteRowKey, String oldNoteBookRowkey,
+			String newNoteBookRowkey, String noteName) {
+		ModelAndView modelAndView = null;
+		try { // 移动笔记
+			boolean moveNote = noteService.moveAndDeleteNote(noteRowKey,
+					oldNoteBookRowkey, newNoteBookRowkey, noteName);
+			ModelMap map = new ModelMap();
+			map.put("success", moveNote);
+			modelAndView = new ModelAndView(new JsonView(), map);
+		} catch (Exception e) {
+			String userName = (String) request.getSession().getAttribute(
+					Constants.USER_INFO);
+			logger.error("用户" + userName
+					+ "移动并删除笔记异常|方法：moveAndDeleteNote|参数：noteRowKey:"
+					+ noteRowKey + ";oldNoteBookRowkey:" + oldNoteBookRowkey
+					+ ";newNoteBookRowkey:" + newNoteBookRowkey, e);
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	/**
 	 * 显示活动列表页面
 	 * 
 	 * @param request
 	 * @return
 	 * @throws Exception
 	 */
-	/*
-	 * @RequestMapping("/showActivity") public String
-	 * showActivity(HttpServletRequest request) throws Exception { return
-	 * "active/activity"; }
-	 *//**
+
+	@RequestMapping("/showActivity")
+	public String showActivity(HttpServletRequest request) throws Exception {
+		return "active/activity";
+	}
+
+	/**
 	 * 打开活动细节页面
 	 * 
 	 * @param request
@@ -434,12 +448,14 @@ public class NoteController {
 	 * @return
 	 * @throws Exception
 	 */
-	/*
-	 * @RequestMapping("/openDetail") public String
-	 * openDetail(HttpServletRequest request, String rowKey) throws Exception {
-	 * request.setAttribute("rowKey", rowKey); return "active/activity_detail";
-	 * }
-	 *//**
+
+	@RequestMapping("/openDetail")
+	public String openDetail(HttpServletRequest request, String rowKey)
+			throws Exception {
+		request.setAttribute("rowKey", rowKey);
+		return "active/activity_detail";
+	}
+	/**
 	 * 活动笔记
 	 * 
 	 * @param request

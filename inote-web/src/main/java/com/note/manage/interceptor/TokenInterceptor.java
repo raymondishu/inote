@@ -28,20 +28,20 @@ public class TokenInterceptor implements HandlerInterceptor{
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
 		String cookieValue = CookieUtils.getCookieValue(request, userTocken);
-		User checkUser = tokenService.checkUser(cookieValue);
+		
 		if(StringUtils.isBlank(cookieValue)){
 			UserThreadLocal.clear();
 			response.sendRedirect("/index.jsp");
 			logger.info("未登录跳转首页");
-			return true;
+			return false;
 		}
-		
+		User checkUser = tokenService.checkUser(cookieValue);
 		if(null==checkUser){
 			UserThreadLocal.clear();
 			response.sendRedirect("/index.jsp");
 			CookieUtils.deleteCookie(request, response, userTocken);
 			logger.info("登录过期跳转首页");
-			return true;
+			return false;
 		}
 		UserThreadLocal.set(checkUser);
 		logger.info(checkUser.getUserName()+" use "+request.getServletPath());		
