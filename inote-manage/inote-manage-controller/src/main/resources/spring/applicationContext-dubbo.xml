@@ -23,4 +23,8 @@
 	<dubbo:service interface="com.note.manage.service.TokenService"
 		ref="tokenService" timeout="1200000"/>       <!-- 和本地bean一样实现服务 -->
 	<bean id="tokenService" class="com.note.manage.service.impl.TokenServiceImpl" />
+	
+	<dubbo:service interface="com.note.manage.service.ActiveService"
+		ref="activeService" timeout="1200000"/>       <!-- 和本地bean一样实现服务 -->
+	<bean id="activeService" class="com.note.manage.service.impl.ActiveServiceImpl" />
 </beans>

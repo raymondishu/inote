@@ -3,14 +3,22 @@
  */
 package com.note.web.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+
+
+
+
 //import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -21,7 +29,9 @@ import org.springframework.web.servlet.ModelAndView;
 import com.note.manage.controller.jsonview.JsonView;
 import com.note.manage.dpojo.Note;
 import com.note.manage.dpojo.NoteBook;
+import com.note.manage.pojo.Active;
 import com.note.manage.pojo.User;
+import com.note.manage.service.ActiveService;
 import com.note.manage.service.NoteService;
 import com.note.manage.threadlocal.UserThreadLocal;
 import com.note.manage.utils.constants.Constants;
@@ -35,6 +45,8 @@ public class NoteController {
 	private NoteService noteService;
 	@Value("#{ipConfig['userToken']}")
 	private String userTocken;
+	@Autowired
+	private ActiveService activeService;
 
 	@RequestMapping("/loginnow")
 	public String loginin(HttpServletRequest request) {
@@ -416,8 +428,7 @@ public class NoteController {
 			map.put("success", moveNote);
 			modelAndView = new ModelAndView(new JsonView(), map);
 		} catch (Exception e) {
-			String userName = (String) request.getSession().getAttribute(
-					Constants.USER_INFO);
+			String userName = UserThreadLocal.get().getUserName();
 			logger.error("用户" + userName
 					+ "移动并删除笔记异常|方法：moveAndDeleteNote|参数：noteRowKey:"
 					+ noteRowKey + ";oldNoteBookRowkey:" + oldNoteBookRowkey
@@ -454,6 +465,40 @@ public class NoteController {
 			throws Exception {
 		request.setAttribute("rowKey", rowKey);
 		return "active/activity_detail";
+	}
+
+	@RequestMapping("/getAllActives")
+	@ResponseBody
+	public List<Active> getAllActives() {
+//		List<Active> activeList = new ArrayList<Active>();
+//		Active active=new Active();
+//		active.setTitle("aa1");
+//		active.setDetail("bb1");
+//		active.setRowKey("111");
+//		active.setDeadline(new Date());
+//		activeList.add(active);
+		return activeService.getAllActives();
+	}
+	@RequestMapping(value = "/addActive")
+	public ModelAndView addActive(HttpServletRequest request,
+			Active active) {
+		ModelAndView modelAndView = null;
+		System.out.println(active.getDeadlineStr());
+		try { // 移动笔记
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			active.setDeadline(sdf.parse(active.getDeadlineStr()));
+			boolean addActive = activeService.addActive(active);
+			ModelMap map = new ModelMap();
+			map.clear();
+			map.put("success", addActive);
+			modelAndView = new ModelAndView(new JsonView(), map);
+		} catch (Exception e) {
+			String userName = UserThreadLocal.get().getUserName();
+			logger.error("用户" + userName
+					+ "添加活动：addActive|参数：active:"+active.toString(), e);
+			e.printStackTrace();
+		}
+		return modelAndView;
 	}
 	/**
 	 * 活动笔记

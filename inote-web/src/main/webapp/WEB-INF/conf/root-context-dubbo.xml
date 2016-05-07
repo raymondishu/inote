@@ -18,4 +18,5 @@
 	<dubbo:reference interface="com.note.manage.service.DemoService"  id="demoService" />
 	<dubbo:reference interface="com.note.manage.service.NoteService"  id="noteService" />
 	<dubbo:reference interface="com.note.manage.service.TokenService" id="tokenService" />
+	<dubbo:reference interface="com.note.manage.service.ActiveService" id="activeService" />
 </beans>

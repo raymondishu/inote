@@ -28,6 +28,9 @@ public class JsonView extends AbstractView {
 				.containsKey("org.springframework.validation.BindingResult.note"))
 			model.remove("org.springframework.validation.BindingResult.note");
 		// System.out.println(mapper.writeValueAsString(model));
+		if(model.containsKey("org.springframework.validation.BindingResult.active")){
+			model.remove("org.springframework.validation.BindingResult.active");
+		}
 		out.print(mapper.writeValueAsString(model));
 
 	}

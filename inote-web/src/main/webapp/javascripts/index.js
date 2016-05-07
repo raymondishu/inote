@@ -86,8 +86,10 @@ var panelCan={			//panel_moveNote和panel_moveBackNote当中的select数据需�
 	panel_deleteStarNote:'<div class="panel panel_deleteStarNote"><div class="panel_top"><h3 class="panel_title">取消收藏</h3></div><div class="panel_middle"><h4>您确定要取消收藏该笔记吗?</h4></div><div class="panel_bottom"><input type="button" value="确 定" class="sure"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="取 消" class="cancle"/></div></div>',
 	panel_starNote:'<div class="panel panel_starNote"><div class="panel_top"><h3 class="panel_title">收藏笔记</h3></div><div class="panel_middle"><h4>该笔记将被放至收藏笔记本,确认收藏吗?</h4></div><div class="panel_bottom"><input type="button" value="确 定" class="sure"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="取 消" class="cancle"/></div></div>',
 	panel_selectNote:'<div class="panel panel_selectNote"><div class="panel_top"><h3 class="panel_title">选择笔记参加活动</h3></div><div class="panel_middle"><div class="select_note"><label>选择笔记本:&nbsp;</label><select id="selectNoteBook"><option value="0">请选择笔记本</option></select></div><div class="select_note"><label>&nbsp;&nbsp;&nbsp;选择笔记:&nbsp;</label><select id="selectNote"><option value="0">请选择笔记</option></select></div></div><div class="panel_bottom"><input type="button" value="确 定" class="sure"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="取 消" class="cancle"/></div></div>',
-	panel_starActivityNote:'<div class="panel panel_starActivityNote"><div class="panel_top"><h3 class="panel_title">收藏笔记</h3></div><div class="panel_middle"><h4>该笔记将被放至收藏笔记本,确认收藏吗?</h4></div><div class="panel_bottom"><input type="button" value="确 定" class="sure"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="取 消" class="cancle"/></div></div>'
+	panel_starActivityNote:'<div class="panel panel_starActivityNote"><div class="panel_top"><h3 class="panel_title">收藏笔记</h3></div><div class="panel_middle"><h4>该笔记将被放至收藏笔记本,确认收藏吗?</h4></div><div class="panel_bottom"><input type="button" value="确 定" class="sure"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="取 消" class="cancle"/></div></div>',
+	panel_addActivity:'<div class="panel panel_addActivity"><div class="panel_top"><h3 class="panel_title">添加活动</h3></div><div class="panel_middle"><table border="0" style="margin:0 auto;"><tr><td>活动名称</td><th><input id="activeTitle" type="text"/></th></tr><tr><td>活动细节</td><td><textarea rows="3" cols="20" id="activeDetail"></textarea></td></tr><tr><td>截止时间</td><td><input type="date" id="activeDate"/></td></tr></table></div><div class="panel_bottom"><input type="button" value="确 定" class="sure"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="取 消" class="cancle"/></div></div>'	
 
+		
 }
 var noteCan={
 	note_my:'<div class="border"><div class="col_top clear_float"><div class="col_li li_action"><div id="addNote" title="添加笔记"><i class="icon i_plus"></i></div></div><div class="col_li li_title"><h4 class="text_over">我的笔记</h4></div></div><div class="col_middle"><ul id="my_note"></ul></div></div>',
@@ -744,6 +746,42 @@ $(function(){
 			}
 		});
 	});
+	/*******************/
+	/*
+	 *确定添加活动
+	 *
+	 */
+	$('.panel_can').on('click','.panel_addActivity .sure',function(){
+		//cleanEditor();
+		var activeTitle = $("#activeTitle").val();
+		var activeDetail= $("#activeDetail").val();
+		var activeDate=$("#activeDate").val();
+		//alert(activeDate);
+		if (activeTitle==""||activeDetail==""||activeDate=="") {
+			show_success($('.alert_success_b'),'请填写活动信息！');
+			return;
+		}
+		$.ajax({
+			type : "post",
+			url : basePath+"note/addActive",
+			async : false,
+			dataType : "json",
+			data: {"title":activeTitle,"detail":activeDetail,"deadlineStr":activeDate},
+			success : function(data) {
+				flag=data.success;
+				if(flag){
+					$('.alert_can').data('addActive').remove();
+					$('.cancle').trigger('click');
+					flashActives();
+				}
+			},
+			error:function(data) {
+			}
+		});
+	});
+	
+	
+	
 	/*
 	 *分享笔记
 	 *@panel_shareNote

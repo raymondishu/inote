@@ -33,4 +33,6 @@ public interface NoteService {
 	//boolean starOtherNote(String noteRowKey, String starBtRowKey);
 	//public boolean activeMyNote(String noteRowKey,
 	//		String activityBtRowKey);
+	boolean addNoteBookToHbase(String title, String activeName,
+			String createTime, int i);
 }

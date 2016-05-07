@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.note.manage.mapper.ActiveMapper">
+	<sql id="Base_Column_List">id,title,detail,rowKey,deadline,createTime,updateTime
+	</sql>
+
+	<select id="getAllActives" resultType="Active">
+		select
+		<include refid="Base_Column_List" />
+		from
+		`test`.`tb_active` ORDER BY deadline DESC
+	</select>
+
+	<insert id="addActive" useGeneratedKeys="true" keyProperty="id"
+		keyColumn="id" parameterType="Active">
+		INSERT INTO `test`.`tb_active` (
+		`id`,
+		`title`,
+		`detail`,
+		`rowKey`,
+		`deadline`,
+		`createTime`,
+		`updateTime`
+		)
+		VALUES
+		(
+		null,
+		#{title},
+		#{detail},
+		#{rowKey},
+		#{deadline},
+		NOW(),
+		NOW()
+		);
+	</insert>
+
+</mapper>
