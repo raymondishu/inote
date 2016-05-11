@@ -14,8 +14,10 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.note.manage.dao.DataDao;
@@ -23,6 +25,7 @@ import com.note.manage.dao.RedisDao;
 import com.note.manage.dpojo.Note;
 import com.note.manage.dpojo.NoteBook;
 import com.note.manage.service.NoteService;
+import com.note.manage.service.SolrService;
 import com.note.manage.utils.constants.Constants;
 
 
@@ -33,6 +36,8 @@ public class NoteServiceImpl implements NoteService {
 	private RedisDao redisDao;
 	@Resource(name = "dataDaoImpl")
 	private DataDao dataDao;
+	@Autowired
+	private SolrService solrService;
 	/*@Resource(name = "searchIndexDaoImpl")
 	private SearchIndexDao searchIndexDao;
 	@Resource(name = "createIndexDaoIpml")
@@ -344,6 +349,8 @@ public class NoteServiceImpl implements NoteService {
 				Constants.NOTEBOOK_TABLE_NAME, noteBookRowkey);
 		ifSuccess = deleteNoteFromNoteBookTable(noteRowKey, createTime, status,
 				oldNoteName, noteBookRowkey, noteList);
+		String[] split = noteRowKey.split(Constants.ROWKEY_SEPARATOR);
+		if(!split[0].equals("active"))
 		if (ifSuccess) {
 			try {
 				ifSuccess = deleteNoteFromNoteTable(noteRowKey, createTime,
@@ -520,12 +527,13 @@ public class NoteServiceImpl implements NoteService {
 	 * 分享笔记 rowKey：rowKey
 	 * 
 	 * @throws IOException
+	 * @throws SolrServerException 
 	 * @throws CorruptIndexException
-	 *//*
+	 */
 	@Override
-	public boolean shareNote(String rowKey) throws CorruptIndexException,
-			IOException {
-		Result queryByRowKey = dataDao.queryByRowKey(Constants.NOTE_TABLE_NAME,
+	public boolean shareNote(String rowKey,String username,String activeRowKey) throws 
+			IOException, SolrServerException {
+		Result queryByRowKey = dataDao.queryByRowKey(username,
 				rowKey);// 查询笔记
 		// 封装参数
 		String noteName = new String(queryByRowKey.getValue(
@@ -537,16 +545,27 @@ public class NoteServiceImpl implements NoteService {
 		String time = new String(queryByRowKey.getValue(
 				Bytes.toBytes(Constants.NOTE_FAMLIY_NOTEINFO),
 				Bytes.toBytes(Constants.NOTE_NOTEINFO_CLU_CREATETIME)));
-		Article article = new Article();
-		article.setId(rowKey);
-		article.setTitle(noteName);
-		article.setTime(time);
-		article.setContent(content);
-		boolean saveNoteToLucene = createIndexDao.saveNoteToLucene(article);// 创建索引
-		return saveNoteToLucene;
+		Long createTimeLong=System.currentTimeMillis();
+		String activeNoteRowkey="active"
+				+ Constants.ROWKEY_SEPARATOR + createTimeLong;
+		boolean addNote = addNote(activeNoteRowkey,noteName,
+				time, "0", activeRowKey);
+		if(addNote){
+			boolean updateNote = updateNote(activeNoteRowkey, noteName, time, content, "0", noteName, activeRowKey);
+			if(updateNote){
+				List<String> noteList = dataDao.queryByRowKeyString(
+						Constants.NOTEBOOK_TABLE_NAME, username+Constants.ACTIVITY);
+				boolean addNoteToNoteList = addNoteToNoteList(activeNoteRowkey, noteName, time, "0", username+Constants.ACTIVITY, noteList);
+				if(addNoteToNoteList){
+					solrService.createIndexToSolrCloud(activeNoteRowkey, noteName, content);
+					return addNoteToNoteList;
+				}
+			}
+		}
+		return false;
 	}
 
-	*//**
+	/**
 	 * 根据关键字获取技术问答列表 key：关键字 page：页码
 	 *//*
 	@Override
@@ -562,16 +581,19 @@ public class NoteServiceImpl implements NoteService {
 
 	*//**
 	 * 收藏笔记
-	 *//*
+	 */
 	@Override
 	public boolean starOtherNote(String noteRowKey, String starBtRowKey) {
 		Note note = getNoteByRowKey(noteRowKey);// 获取笔记信息
-		boolean addNote = addNote(noteRowKey, note.getName(),
-				note.getCreateTime(), note.getStatus(), starBtRowKey);
-		return addNote;
+		List<String> noteList = dataDao.queryByRowKeyString(
+				Constants.NOTEBOOK_TABLE_NAME, starBtRowKey);
+		boolean ifSucess = addNoteToNoteList(noteRowKey, note.getName(), note.getCreateTime(), note.getStatus(),
+				starBtRowKey, noteList);
+		return ifSucess;
 	}
-	*//**
+	/**
 	 * 活动笔记
+	 * @throws Exception 
 	 *//*
 	@Override
 	public boolean activeMyNote(String noteRowKey, String activityBtRowKey) {
@@ -580,4 +602,9 @@ public class NoteServiceImpl implements NoteService {
 				note.getCreateTime(), note.getStatus(), activityBtRowKey);
 		return addNote;
 	}*/
+
+	@Override
+	public List<Note> searchActiveNotesByKeyWords(String keyWords) throws Exception {
+		return solrService.searchIndexFromSolrCloud(keyWords);
+	}
 }

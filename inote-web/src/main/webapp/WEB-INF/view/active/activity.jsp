@@ -19,7 +19,7 @@
 		</div>
 		<div class="activity_btn">
 			<div class="activity_link">
-				<h4><a class="ac_link"  onclick="addActivity();">添加活动</a><i class='icon i_global'></i></h4>
+				<h4><a class="ac_link"  onclick="addActivity();">添加活动</a><i class='icon i_global'></i><a class="ac_link"  onclick="searchActiveNotes();">搜索活动笔记</a><i class='icon i_global'></i></h4>
 			</div>
 		</div>
 	</header>

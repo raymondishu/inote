@@ -3,6 +3,8 @@ package com.note.manage.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.solr.client.solrj.SolrServerException;
+
 import com.note.manage.dpojo.Note;
 import com.note.manage.dpojo.NoteBook;
 
@@ -27,12 +29,13 @@ public interface NoteService {
 	boolean moveAndDeleteNote(String noteRowKey, String oldNoteBookRowkey,
 			String newNoteBookRowkey,String noteName);
 	Note getNoteByRowKey(String noteRowkey) throws Exception;
-	//boolean shareNote(String rowKey) throws CorruptIndexException, IOException;
+	boolean shareNote(String rowKey,String username,String activeRowKey) throws IOException, SolrServerException;
 	//List<Article> search(String key, int page) throws InterruptedException,
 	 //ParseException, IOException, InvalidTokenOffsetsException;
-	//boolean starOtherNote(String noteRowKey, String starBtRowKey);
+	boolean starOtherNote(String noteRowKey, String starBtRowKey);
 	//public boolean activeMyNote(String noteRowKey,
 	//		String activityBtRowKey);
 	boolean addNoteBookToHbase(String title, String activeName,
 			String createTime, int i);
+	List<Note> searchActiveNotesByKeyWords(String keyWords) throws Exception;
 }

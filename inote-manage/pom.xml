@@ -141,5 +141,10 @@
 			<artifactId>jsp-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-solrj</artifactId>
+			<version>4.10.2</version>
+		</dependency>
 	</dependencies>
 </project>

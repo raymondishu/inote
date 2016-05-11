@@ -72,7 +72,7 @@
 				<div class="col_li col_left" style='max-width:80%'><h2 class='h2_styles text_over' id='outputNoteTitle'></h2></div>
 				<div class="col_li col_left"><i class='icon i_quoteRight'></i></div>
 			</div>
-			<div class="note_content" id='outputNoteContent' style='/*height:550px;*/'>
+			<div class="note_content" id='outputNoteContent' style='height:550px;'>
 			</div>
 		</div>	
 	</div>

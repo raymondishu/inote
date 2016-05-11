@@ -1,5 +1,6 @@
 package com.note.manage.service.impl;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -24,11 +25,12 @@ public class ActiveServiceImpl implements ActiveService {
 	}
 
 	@Override
-	public boolean addActive(Active active) {
+	public boolean addActive(Active active) throws IOException {
 		String activeName="active";
 		String createTime=String.valueOf(System.currentTimeMillis());
 		String rowKey = activeName.trim() + Constants.ROWKEY_SEPARATOR+ createTime.trim();
-		noteService.addNoteBookToHbase(active.getTitle(), activeName, createTime, 0);
+		noteService.addNoteBook(active.getTitle(), activeName, createTime, 0);
+		//noteService.addNoteBookToHbase(active.getTitle(), activeName, createTime, 0);
 		active.setRowKey(rowKey);
 		int addActive = activeMapper.addActive(active);
 		if(addActive>0){
